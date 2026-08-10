@@ -19,7 +19,7 @@ scale = Vector2(2, 2)
 texture = ExtResource("1_nmfya")
 
 [node name="Floor" type="StaticBody2D" parent="." unique_id=1843856475]
-position = Vector2(961, 766)
+position = Vector2(1, 227)
 collision_layer = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1453720560]
@@ -30,9 +30,10 @@ shape = SubResource("RectangleShape2D_iwepf")
 offset_right = 40.0
 offset_bottom = 23.0
 text = "floor"
+metadata/_edit_use_anchors_ = true
 
 [node name="Wall" type="StaticBody2D" parent="." unique_id=994910682]
-position = Vector2(960, 838)
+position = Vector2(0, 299)
 collision_layer = 2
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Wall" unique_id=1610354244]
@@ -58,4 +59,4 @@ editor_draw_limits = true
 editor_draw_drag_margin = true
 
 [node name="Fox" parent="." unique_id=1880703468 instance=ExtResource("2_k5qsb")]
-position = Vector2(0, 175)
+position = Vector2(0, 150)

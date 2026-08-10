@@ -1385,9 +1385,8 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_u7s6j"]
 resource_name = "dash"
-length = 0.03333500173855573
-loop_mode = 1
-step = 0.016666668
+length = 0.20001000298038127
+step = 0.1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -1407,7 +1406,7 @@ tracks/1/path = NodePath(".:frame")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.016666668),
+"times": PackedFloat32Array(0, 0.1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [0, 1]
@@ -1620,7 +1619,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_r5q20"]
 resource_name = "forward_smash_1"
-length = 0.46666835767198356
+length = 0.4666683576719835
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -2323,7 +2322,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_y2tyk"]
 resource_name = "up_tilt"
-length = 0.20000167709756642
+length = 0.2000016770975664
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -2455,16 +2454,18 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iwepf"]
-size = Vector2(40, 62)
+size = Vector2(60, 94)
 
 [node name="Fox" type="CharacterBody2D" unique_id=1880703468]
 collision_mask = 14
+floor_snap_length = 0.0
 script = ExtResource("1_4qnfq")
 
 [node name="StateMachine" type="Node" parent="." unique_id=1063974585]
 script = ExtResource("2_nw15c")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1811477695]
+scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_iwepf")
 animation = &"idle"
 
@@ -2478,25 +2479,43 @@ shape = SubResource("RectangleShape2D_iwepf")
 [node name="Raycasts" type="Node2D" parent="." unique_id=62167952]
 
 [node name="GroundL" type="RayCast2D" parent="Raycasts" unique_id=1538816946]
+position = Vector2(-22, 40)
+target_position = Vector2(0, 10)
+collision_mask = 6
+collide_with_areas = true
 
 [node name="GroundR" type="RayCast2D" parent="Raycasts" unique_id=966045706]
+position = Vector2(22, 40)
+target_position = Vector2(0, 10)
+collision_mask = 6
+collide_with_areas = true
 
 [node name="LedgeGrabF" type="RayCast2D" parent="Raycasts" unique_id=642218751]
+position = Vector2(22, -15)
+scale = Vector2(3, 3)
+target_position = Vector2(20, 0)
+collision_mask = 8
+collide_with_areas = true
 
 [node name="LedgeGrabB" type="RayCast2D" parent="Raycasts" unique_id=18937172]
+position = Vector2(0, -38)
+scale = Vector2(3, 3)
+target_position = Vector2(-11, 0)
+collision_mask = 8
+collide_with_areas = true
 
 [node name="Frames" type="Label" parent="." unique_id=1834785335]
 offset_left = -20.0
-offset_top = -78.0
+offset_top = -100.0
 offset_right = 20.0
-offset_bottom = -55.0
+offset_bottom = -77.0
 text = "45"
 horizontal_alignment = 1
 
 [node name="State" type="Label" parent="." unique_id=197642914]
 offset_left = -20.0
-offset_top = -54.0
+offset_top = -76.0
 offset_right = 20.0
-offset_bottom = -31.0
+offset_bottom = -53.0
 text = "test"
 horizontal_alignment = 1
