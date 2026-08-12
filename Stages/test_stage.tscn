@@ -2,19 +2,14 @@
 
 [ext_resource type="Texture2D" uid="uid://divqvre1r7vbb" path="res://Stages/Smashville/1.png" id="1_nmfya"]
 [ext_resource type="PackedScene" uid="uid://c5d2d1wkvlpbf" path="res://Scenes/fox.tscn" id="2_k5qsb"]
+[ext_resource type="PackedScene" uid="uid://c6nbln48uc8j5" path="res://Stages/Assets/ledge.tscn" id="3_k5qsb"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iwepf"]
 size = Vector2(962, 37)
 
 [node name="TestStage" type="Node2D" unique_id=934371693]
 
-[node name="Template" type="Sprite2D" parent="." unique_id=1072999869]
-visible = false
-position = Vector2(960, 540)
-scale = Vector2(2, 2)
-texture = ExtResource("1_nmfya")
-
-[node name="Template2" type="Sprite2D" parent="." unique_id=250506236]
+[node name="Template" type="Sprite2D" parent="." unique_id=250506236]
 scale = Vector2(2, 2)
 texture = ExtResource("1_nmfya")
 
@@ -60,3 +55,13 @@ editor_draw_drag_margin = true
 
 [node name="Fox" parent="." unique_id=1880703468 instance=ExtResource("2_k5qsb")]
 position = Vector2(0, 150)
+
+[node name="Ledge" parent="." unique_id=1954263270 instance=ExtResource("3_k5qsb")]
+position = Vector2(482, 230)
+ledge_side = "Right"
+
+[node name="Ledge2" parent="." unique_id=1830487199 instance=ExtResource("3_k5qsb")]
+position = Vector2(-482, 228)
+
+[node name="Ledge3" parent="." unique_id=987311810 instance=ExtResource("3_k5qsb")]
+position = Vector2(-90, 23)

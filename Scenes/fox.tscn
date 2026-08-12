@@ -2479,13 +2479,13 @@ shape = SubResource("RectangleShape2D_iwepf")
 [node name="Raycasts" type="Node2D" parent="." unique_id=62167952]
 
 [node name="GroundL" type="RayCast2D" parent="Raycasts" unique_id=1538816946]
-position = Vector2(-22, 40)
+position = Vector2(-30, 40)
 target_position = Vector2(0, 10)
 collision_mask = 6
 collide_with_areas = true
 
 [node name="GroundR" type="RayCast2D" parent="Raycasts" unique_id=966045706]
-position = Vector2(22, 40)
+position = Vector2(30, 40)
 target_position = Vector2(0, 10)
 collision_mask = 6
 collide_with_areas = true

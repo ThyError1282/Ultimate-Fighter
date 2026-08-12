@@ -14,11 +14,21 @@ extends CharacterBody2D
 var move_velocity = Vector2(0,0)
 var dash_duration = 15
 
-# Air variables
+# Landing variables
 var landing_frames = 10
 var lag_frames = 5
+var perfect_wavedash_modifier = .67
+
+# Air variables
 var jump_squat = 3
 var fastfall = false
+var air_jump = 0
+@export var air_jump_max = 1
+
+# Ledge variables
+var last_ledge = false
+var regrab = 30
+var catch = false
 
 # Main Attributes
 var RUNSPEED = 340
@@ -27,7 +37,7 @@ var WALKSPEED = 200
 var GRAVITY = 1000
 var JUMPFORCE = 500
 var MAX_JUMPFORCE = 900
-var DOUBLE_JUMPFORCE = 1000
+var DOUBLEJUMPFORCE = 1000
 var MAXAIRSPEED = 300
 var AIR_ACCEL = 25
 var FALLSPEED = 60
@@ -65,11 +75,17 @@ func direction():
 func reset_frame() -> void:
 	frame = 0
 
+func reset_jumps():
+	air_jump = air_jump_max
+
+func reset_ledge() -> void:
+	last_ledge = false
+
+func play_animation(name) -> void:
+	animation_player.play(name)
+
 func _ready() -> void:
 	pass
 
 func _physics_process(delta: float) -> void:
 	frames.text = str(frame)
-
-func play_animation(name) -> void:
-	animation_player.play(name)
