@@ -1,6 +1,6 @@
 class_name StateMachineFox extends StateMachine
 
-@export var id: int = 1
+@onready var id = parent.id
 
 func _ready() -> void:
 	add_state("STAND")
@@ -20,6 +20,11 @@ func _ready() -> void:
 	add_state("LEDGE_CLIMB")
 	add_state("LEDGE_JUMP")
 	add_state("LEDGE_ROLL")
+	add_state("HITSTUN")
+	add_state("GROUND_ATTACK")
+	add_state("DOWN_TILT")
+	add_state("UP_TILT")
+	add_state("FORWARD_TILT")
 	call_deferred("set_state", states.STAND)
 
 func state_logic(delta) -> void:
@@ -42,6 +47,10 @@ func get_transition(delta):
 		return states.LEDGE_CATCH
 	else:
 		parent.reset_ledge()
+	
+	if Input.is_action_just_pressed("attack_%s" % id) && tilt() == true:
+		parent.reset_frame()
+		return states.GROUND_ATTACK
 	
 	match state:
 		states.STAND:
@@ -460,6 +469,105 @@ func get_transition(delta):
 				parent.reset_ledge()
 				parent.reset_frame()
 				return states.STAND
+		
+		states.HITSTUN:
+			if parent.knockback >= 3:
+				var bounce = parent.move_and_collide(parent.velocity * delta)
+				if bounce:
+					parent.velocity = parent.velocity.bounce(bounce.normal) * 0.8
+					parent.hitstun = round(parent.hitstun * 0.8)
+			if parent.velocity.y < 0:
+				parent.velocity.y += parent.vdecay * 0.5 * Engine.time_scale
+				parent.velocity.y = clamp(parent.velocity.y, parent.velocity.y, 0)
+			if parent.velocity.x < 0:
+				parent.velocity.x -= parent.hdecay * 0.4 * Engine.time_scale
+				parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			elif parent.velocity.x > 0:
+				parent.velocity.x -= parent.hdecay * 0.4 * Engine.time_scale
+				parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+			
+			if parent.frame == parent.hitstun:
+				if parent.knockback >= 24:
+					parent.reset_frame()
+					return states.AIR
+				else:
+					parent.reset_frame()
+					return states.AIR
+			elif parent.frame > 60 * 5:
+				return states.AIR
+		
+		states.GROUND_ATTACK:
+			if Input.is_action_pressed("up_%s" % id):
+				parent.reset_frame()
+				return states.UP_TILT
+			if Input.is_action_pressed("down_%s" % id):
+				parent.reset_frame()
+				return states.DOWN_TILT
+			if Input.is_action_pressed("left_%s" % id):
+				parent.turn(true)
+				parent.reset_frame()
+				return states.FORWARD_TILT
+			if Input.is_action_pressed("right_%s" % id):
+				parent.turn(false)
+				parent.reset_frame()
+				return states.FORWARD_TILT
+			parent.reset_frame()
+			#return states.JAB
+		
+		states.DOWN_TILT:
+			if parent.frame == 0:
+				parent.down_tilt()
+				pass
+			if parent.frame >= 1:
+				if parent.velocity.x > 0:
+					parent.velocity.x += -parent.TRACTION * 3
+					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+				if parent.velocity.x < 0:
+					parent.velocity.x += parent.TRACTION * 3
+					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			if parent.down_tilt() == true:
+				if Input.is_action_pressed("down_%s" % id):
+					parent.reset_frame()
+					return states.CROUCH
+				else:
+					parent.reset_frame()
+					return states.STAND
+		
+		states.UP_TILT:
+			if parent.frame == 0:
+				parent.up_tilt()
+			if parent.frame >= 1:
+				if parent.velocity.x > 0:
+					parent.velocity.x += -parent.TRACTION * 3
+					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+				if parent.velocity.x < 0:
+					parent.velocity.x += parent.TRACTION * 3
+					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			if parent.up_tilt() == true:
+				if Input.is_action_pressed("down_%s" % id):
+					parent.reset_frame()
+					return states.CROUCH
+				else:
+					parent.reset_frame()
+					return states.STAND
+		
+		states.FORWARD_TILT:
+			if parent.frame == 0:
+				parent.forward_tilt()
+			if parent.frame >= 1:
+				if parent.velocity.x > 0:
+					parent.velocity.x += -parent.TRACTION * 2
+					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+				if parent.velocity.x < 0:
+					parent.velocity.x += parent.TRACTION * 2
+					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			if parent.forward_tilt() == true:
+				if Input.is_action_pressed("down_%s" % id):
+					parent.reset_frame()
+					return states.CROUCH
+				else:
+					parent.reset_frame()
+					return states.STAND
 
 func enter_state(new_state, old_state) -> void:
 	match new_state:
@@ -511,6 +619,20 @@ func enter_state(new_state, old_state) -> void:
 		states.LEDGE_ROLL:
 			parent.play_animation("roll_forward")
 			parent.state.text = str("LEDGE_ROLL")
+		states.HITSTUN:
+			parent.play_animation("hitstun")
+			parent.state.text = str("HITSTUN")
+		states.GROUND_ATTACK:
+			parent.state.text = str("GROUND_ATTACK")
+		states.DOWN_TILT:
+			parent.play_animation("down_tilt")
+			parent.state.text = str("DOWN_TILT")
+		states.UP_TILT:
+			parent.play_animation("up_tilt")
+			parent.state.text = str("UP_TILT")
+		states.FORWARD_TILT:
+			parent.play_animation("forward_tilt")
+			parent.state.text = str("FORWARD_TILT")
 
 func exit_state(new_state, old_state) -> void:
 	pass
@@ -520,6 +642,10 @@ func state_includes(state_array):
 		if state == each_state:
 			return true
 	return false
+
+func tilt():
+	if state_includes([states.STAND, states.MOONWALK, states.DASH, states.RUN, states.WALK, states.CROUCH]):
+		return true
 
 func air_movement():
 	if parent.velocity.y < parent.FALLINGSPEED:

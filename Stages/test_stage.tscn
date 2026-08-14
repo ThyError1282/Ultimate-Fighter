@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://xakawh34dxdk"]
 
 [ext_resource type="Texture2D" uid="uid://divqvre1r7vbb" path="res://Stages/Smashville/1.png" id="1_nmfya"]
+[ext_resource type="Script" uid="uid://b2sbjuoxrcy2j" path="res://Scripts/stage_camera.gd" id="2_3gimc"]
 [ext_resource type="PackedScene" uid="uid://c5d2d1wkvlpbf" path="res://Scenes/fox.tscn" id="2_k5qsb"]
 [ext_resource type="PackedScene" uid="uid://c6nbln48uc8j5" path="res://Stages/Assets/ledge.tscn" id="3_k5qsb"]
 
@@ -41,7 +42,6 @@ offset_bottom = 23.0
 text = "wall"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1863052194]
-zoom = Vector2(1.777, 1.777)
 limit_left = -1140
 limit_top = -710
 limit_right = 1150
@@ -52,9 +52,15 @@ drag_left_margin = 0.0
 drag_right_margin = 0.0
 editor_draw_limits = true
 editor_draw_drag_margin = true
+script = ExtResource("2_3gimc")
 
 [node name="Fox" parent="." unique_id=1880703468 instance=ExtResource("2_k5qsb")]
-position = Vector2(0, 150)
+position = Vector2(-359, 156)
+id = 1
+
+[node name="Fox2" parent="." unique_id=144203233 instance=ExtResource("2_k5qsb")]
+position = Vector2(351, 161)
+id = 2
 
 [node name="Ledge" parent="." unique_id=1954263270 instance=ExtResource("3_k5qsb")]
 position = Vector2(482, 230)

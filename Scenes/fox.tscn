@@ -36,6 +36,7 @@
 [ext_resource type="Texture2D" uid="uid://b08vcrhhknlhr" path="res://Characters/Fox/sprites/walk_strip4.png" id="32_tb6ev"]
 [ext_resource type="Texture2D" uid="uid://c4cmuygnlhpu8" path="res://Characters/Fox/sprites/walkturn_strip5.png" id="33_fv7rl"]
 [ext_resource type="Texture2D" uid="uid://buivfdbvh5gjj" path="res://Characters/Fox/sprites/walljump_strip5.png" id="34_ygee3"]
+[ext_resource type="PackedScene" uid="uid://bhfmhkco5py3f" path="res://Scenes/hitbox.tscn" id="37_nw15c"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6nwgr"]
 atlas = ExtResource("1_f5y6a")
@@ -2460,6 +2461,7 @@ size = Vector2(60, 94)
 collision_mask = 14
 floor_snap_length = 0.0
 script = ExtResource("1_4qnfq")
+hitbox = ExtResource("37_nw15c")
 
 [node name="StateMachine" type="Node" parent="." unique_id=1063974585]
 script = ExtResource("2_nw15c")
@@ -2517,5 +2519,6 @@ offset_left = -20.0
 offset_top = -76.0
 offset_right = 20.0
 offset_bottom = -53.0
+size_flags_horizontal = 3
 text = "test"
 horizontal_alignment = 1
