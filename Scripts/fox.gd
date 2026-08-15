@@ -15,6 +15,10 @@ extends CharacterBody2D
 @export var stocks = 3
 @export var weight = 100
 
+# Buffers
+var l_cancel = 0
+var cooldown = 0
+
 # Knockback
 var hdecay
 var vdecay
@@ -81,6 +85,10 @@ func create_hitbox(width, height, damage, angle, base_kb, kb_scaling, duration, 
 
 func update_frames(delta) -> void:
 	frame += 1
+	l_cancel -= floor(delta * 60)
+	clamp(l_cancel, 0, l_cancel)
+	cooldown -= floor(delta * 60)
+	cooldown = clamp(cooldown, 0, cooldown)
 
 func turn(direction) -> void:
 	var dir = 0
@@ -119,6 +127,12 @@ func _physics_process(delta: float) -> void:
 	frames.text = str(frame)
 	selfState = state.text
 
+func jab():
+	if frame == 11:
+		create_hitbox(30, 75, 8, 90, 3, 120, 3, "normal", Vector2(-35, -11), 0, 1)
+	if frame >= 24:
+		return true
+
 # Tilt attacks
 func down_tilt():
 	if frame == 5:
@@ -127,13 +141,75 @@ func down_tilt():
 		return true
 
 func up_tilt():
-	if frame == 6:
-		create_hitbox(28, 46, 8, 100, 3, 120, 3, "normal", Vector2(-10, -37), 0, 1)
-	if frame >= 9:
+	if frame == 5:
+		create_hitbox(40, 60, 8, 110, 20, 110, 3, "normal", Vector2(-22, -15), 0, 1)
+	if frame >= 12:
 		return true
 
 func forward_tilt():
-	if frame == 4:
-		create_hitbox(36, 20, 8, 100, 3, 120, 4, "normal", Vector2(48, 9), 0, 1)
-	if frame >= 10:
+	if frame == 3:
+		create_hitbox(52, 20, 6, 120, 40, 80, 3, "normal", Vector2(22, 8), 0, 1)
+	if frame >= 8:
+		return true
+
+func nair():
+	if frame == 1:
+		create_hitbox(56, 56, 12, 361, 0, 100, 3, "normal", Vector2(0, 0), 0, 0.4)
+	if frame > 1:
+		if connected == true:
+			if frame == 36:
+				connected = false
+				return true
+		else:
+			if frame == 5:
+				create_hitbox(46, 56, 9, 361, 0, 100, 10, "normal", Vector2(0, 0), 0, 0.1)
+			if frame == 36:
+				return true
+
+func uair():
+	if frame == 2:
+		create_hitbox(32, 36, 5, 90, 130, 0, 2, "normal", Vector2(0, -45), 0, 1)
+	if frame == 6:
+		create_hitbox(56, 46, 10, 90, 20, 108, 3, "normal", Vector2(0, -48), 0, 2)
+	if frame == 15:
+		return true
+
+func bair():
+	if frame == 2:
+		create_hitbox(52, 55, 15, 45, 1, 100, 5, "normal", Vector2(-47, 7), 6, 1)
+	if frame > 1:
+		if connected == true:
+			if frame == 18:
+				connected = false
+				return true
+		else:
+			if frame == 7:
+				create_hitbox(52, 55, 5, 45, 3, 140, 10, "normal", Vector2(-47, 7), 6, 1)
+			if frame == 10:
+				return true
+
+func fair():
+	if frame == 2:
+		create_hitbox(35, 47, 3, 76, 10, 150, 3, "normal", Vector2(60, -7), 0, 1)
+	if frame == 10:
+		create_hitbox(35, 47, 3, 76, 10, 150, 3, "normal", Vector2(60, -7), 0, 1)
+	if frame == 11:
+		return true
+
+func dair():
+	if frame == 2:
+		create_hitbox(36, 58, 2, 290, 140, 0, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 3:
+		create_hitbox(36, 58, 2, 290, 140, 0, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 5:
+		create_hitbox(36, 58, 2, 290, 140, 0, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 7:
+		create_hitbox(36, 58, 2, 290, 140, 0, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 9:
+		create_hitbox(36, 58, 2, 290, 140, 0, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 11:
+		create_hitbox(36, 58, 2, 290, 140, 0, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 14:
+		create_hitbox(36, 58, 4, 45, 12, 120, 2, "normal", Vector2(28, 18), 0, 1)
+	if frame == 17:
 		return true

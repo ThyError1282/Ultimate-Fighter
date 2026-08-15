@@ -94,23 +94,23 @@ func knockback(p, d, w, ks, bk, r):
 func s_angle(body):
 	if angle == 361:
 		if knockbackval > 28:
-			if body.in_air == true:
+			if !body.is_on_floor() == true:
 				angle = 40
 			else:
 				angle = 38
 		else:
-			if body.in_air == true:
+			if !body.is_on_floor() == true:
 				angle = 40
 			else:
 				angle = 25
 	elif angle == -181:
 		if knockbackval > 28:
-			if body.in_air == true:
+			if !body.is_on_floor() == true:
 				angle = 140
 			else:
 				angle = 142
 		else:
-			if body.in_air == true:
+			if !body.is_on_floor() == true:
 				angle = 140
 			else:
 				angle = 155
