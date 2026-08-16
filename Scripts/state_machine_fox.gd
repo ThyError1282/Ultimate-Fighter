@@ -2,6 +2,12 @@ class_name StateMachineFox extends StateMachine
 
 @onready var id = parent.id
 
+var kbx
+var kby
+var hd
+var vd
+var pos
+
 func _ready() -> void:
 	add_state("STAND")
 	add_state("JUMP_SQUAT")
@@ -20,12 +26,14 @@ func _ready() -> void:
 	add_state("LEDGE_CLIMB")
 	add_state("LEDGE_JUMP")
 	add_state("LEDGE_ROLL")
+	add_state("HITFREEZE")
 	add_state("HITSTUN")
 	add_state("GROUND_ATTACK")
 	add_state("DOWN_TILT")
 	add_state("UP_TILT")
 	add_state("FORWARD_TILT")
 	add_state("JAB")
+	add_state("NEUTRAL_SPECIAL")
 	add_state("AIR_ATTACK")
 	add_state("NAIR")
 	add_state("UAIR")
@@ -39,6 +47,7 @@ func state_logic(delta) -> void:
 	parent._physics_process(delta)
 	if parent.regrab > 0:
 		parent.regrab -= 1
+	parent.pause(delta)
 
 func get_transition(delta):
 	parent.move_and_slide()
@@ -58,6 +67,10 @@ func get_transition(delta):
 	if Input.is_action_just_pressed("attack_%s" % id) && tilt() == true:
 		parent.reset_frame()
 		return states.GROUND_ATTACK
+	
+	if Input.is_action_just_pressed("special_%s" % id) && special() == true:
+		parent.reset_frame()
+		return states.NEUTRAL_SPECIAL
 	
 	if Input.is_action_just_pressed("attack_%s" % id) && aerial() == true:
 		if Input.is_action_pressed("up_%s" % id):
@@ -317,6 +330,9 @@ func get_transition(delta):
 					parent.velocity.x = -parent.MAXAIRSPEED
 				elif Input.is_action_pressed("right_%s" % id):
 					parent.velocity.x = parent.MAXAIRSPEED
+			if Input.is_action_just_pressed("special_%s" % id):
+				parent.reset_frame()
+				return states.NEUTRAL_SPECIAL
 		
 		states.LANDING:
 			if parent.frame == 1:
@@ -507,6 +523,16 @@ func get_transition(delta):
 				parent.reset_frame()
 				return states.STAND
 		
+		states.HITFREEZE:
+			if parent.freezeframes == 0:
+				parent.reset_frame()
+				parent.velocity.x = kbx
+				parent.velocity.y = kby
+				parent.hdecay = hd
+				parent.vdecay = vd
+				return states.HITSTUN
+			parent.position = pos
+		
 		states.HITSTUN:
 			if parent.knockback >= 3:
 				var bounce = parent.move_and_collide(parent.velocity * delta)
@@ -532,6 +558,39 @@ func get_transition(delta):
 					return states.AIR
 			elif parent.frame > 60 * 5:
 				return states.AIR
+		
+		states.NEUTRAL_SPECIAL:
+			if aerial() == false:
+				if parent.velocity.x > 0:
+					if parent.velocity.x > parent.DASHSPEED:
+						parent.velocity.x = parent.DASHSPEED
+					parent.velocity.x = parent.velocity.x - parent.TRACTION * 10
+					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+				elif parent.velocity.x < 0:
+					if parent.velocity.x < -parent.DASHSPEED:
+						parent.velocity.x = -parent.DASHSPEED
+					parent.velocity.x = parent.velocity.x + parent.TRACTION * 10
+					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			if aerial() == true:
+				air_movement()
+			if parent.frame <= 1:
+				if parent.projectile_cooldown == 1:
+					parent.projectile_cooldown = -1
+				if parent.projectile_cooldown == 0:
+					parent.projectile_cooldown += 1
+					parent.reset_frame()
+					parent.neutral_special()
+			if parent.frame < 14:
+				if Input.is_action_just_pressed("special_%s" % id):
+					parent.reset_frame()
+					return states.NEUTRAL_SPECIAL
+			if parent.neutral_special() == true:
+				if aerial() == true:
+					return states.AIR
+				else:
+					if parent.frame == 14:
+						parent.reset_frame()
+						return states.STAND
 		
 		states.AIR_ATTACK:
 			air_movement()
@@ -788,7 +847,13 @@ func enter_state(new_state, old_state) -> void:
 			parent.state.text = str("LEDGE_ROLL")
 		states.HITSTUN:
 			parent.play_animation("hitstun")
+			parent.state.text = str("HITFREEZE")
+		states.HITSTUN:
+			parent.play_animation("hitstun")
 			parent.state.text = str("HITSTUN")
+		states.NEUTRAL_SPECIAL:
+			parent.play_animation("neutral_special")
+			parent.state.text = str("NEUTRAL_SPECIAL")
 		states.AIR_ATTACK:
 			parent.state.text = str("AIR_ATTACK")
 		states.NAIR:
@@ -835,11 +900,15 @@ func tilt():
 		return true
 
 func aerial():
-	if state_includes([states.AIR, states.DAIR, states.NAIR]):
+	if state_includes([states.AIR, states.DAIR, states.NAIR, states.BAIR, states.UAIR, states.FAIR, states.NEUTRAL_SPECIAL]):
 		if !(parent.GroundL.is_colliding() and parent.GroundR.is_colliding()):
 			return true
 		else:
 			return false
+
+func special():
+	if state_includes([states.STAND, states.WALK, states.DASH, states.RUN, states.MOONWALK, states.CROUCH]):
+		return true
 
 func air_movement():
 	if parent.velocity.y < parent.FALLINGSPEED:
@@ -967,3 +1036,11 @@ func ledge():
 				collider.is_grabbed = true
 				parent.last_ledge = collider
 				return true
+
+func hitfreeze(duration, knocback):
+	pos = parent.get_position()
+	parent.freezeframes = duration
+	kbx = knocback[0]
+	kby = knocback[1]
+	hd = knocback[2]
+	vd = knocback[3]

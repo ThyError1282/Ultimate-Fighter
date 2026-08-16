@@ -52,12 +52,17 @@ func _on_hitbox_collide(body):
 		body.percentage += damage
 		knockbackval = knockback(body.percentage, damage, weight, kb_scaling, base_kb, 1)
 		s_angle(body)
-		angle_flip(body)
+		charstate.state = charstate.states.HITFREEZE
+		charstate.hitfreeze(hitlag(damage, hitlag_modifier), angle_flip_2(Vector2(body.velocity.x, body.velocity.y), body.global_position))
 		body.knockback = knockbackval
 		body.hitstun = get_hitstun(knockbackval / 0.3)
 		get_parent().connected = true
 		body.reset_frame()
-		charstate.state = charstate.states.HITSTUN
+		
+		Globals.hitstun(hitlag(damage, hitlag_modifier), hitlag(damage, hitlag_modifier) / 60)
+		get_parent().hit_pause_dur = duration - framez
+		get_parent().temp_pos = get_parent().position
+		get_parent().temp_vel = get_parent().velocity
 
 func update_extents() -> void:
 	hitbox.shape.extents = Vector2(width, height)
@@ -71,7 +76,6 @@ func _physics_process(delta: float) -> void:
 	if framez < duration:
 		framez += 1
 	elif framez == duration:
-		Engine.time_scale = 1
 		queue_free()
 		return
 	if get_parent().selfState != parentstate:
@@ -81,6 +85,11 @@ func _physics_process(delta: float) -> void:
 
 func get_hitstun(knockback):
 	return floor(knockback * 0.4)
+
+func hitlag(d, hit):
+	damage = d
+	hitlag_modifier = hit
+	return floor((((floor(d) * 0.65) + 6) * hit))
 
 func knockback(p, d, w, ks, bk, r):
 	percentage = p
@@ -204,3 +213,75 @@ func angle_flip(body):
 			body.velocity.y = (get_vertical_velocity(knockbackval, -angle))
 			body.hdecay = (get_horizontal_decay(angle))
 			body.vdecay = (get_vertical_decay(angle))
+
+func angle_flip_2(body_vel: Vector2, body_position: Vector2, hdecay = 0, vdecay = 0):
+	var xangle
+	if get_parent().direction() == -1:
+		xangle = -((((body_position.angle_to_point(get_parent().global_position)) * 180) / PI))
+	else:
+		xangle = ((((body_position.angle_to_point(get_parent().global_position)) * 180) / PI))
+	match angle_flipper:
+		0:
+			body_vel.x = (get_horizontal_velocity(knockbackval, -angle))
+			body_vel.y = (get_vertical_velocity(knockbackval, -angle))
+			hdecay = (get_horizontal_decay(-angle))
+			vdecay = (get_vertical_decay(angle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		1:
+			if get_parent().direction() == -1:
+				xangle = -(((self.global_position.angle_to_point(body_position)) * 180) / PI)
+			else:
+				xangle = (((self.global_position.angle_to_point(body_position)) * 180) / PI)
+			body_vel.x = (get_horizontal_velocity(knockbackval, xangle + 180))
+			body_vel.y = (get_vertical_velocity(knockbackval, -xangle))
+			hdecay = (get_horizontal_decay(angle + 180))
+			vdecay = (get_vertical_decay(xangle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		2:
+			if get_parent().direction() == -1:
+				xangle = -((((body_position.angle_to_point(self.global_position)) * 180) / PI))
+			else:
+				xangle = ((((body_position.angle_to_point(self.global_position)) * 180) / PI))
+			body_vel.x = (get_horizontal_velocity(knockbackval, -xangle + 180))
+			body_vel.y = (get_vertical_velocity(knockbackval, -xangle))
+			hdecay = (get_horizontal_decay(xangle + 180))
+			vdecay = (get_vertical_decay(xangle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		3:
+			if get_parent().direction() == -1:
+				xangle = -((((body_position.angle_to_point(self.global_position)) * 180) / PI)) + 180
+			else:
+				xangle = ((((body_position.angle_to_point(self.global_position)) * 180) / PI))
+			body_vel.x = (get_horizontal_velocity(knockbackval, xangle))
+			body_vel.y = (get_vertical_velocity(knockbackval, -angle))
+			hdecay = (get_horizontal_decay(xangle))
+			vdecay = (get_vertical_decay(xangle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		4:
+			if get_parent().direction() == -1:
+				xangle = -((((body_position.angle_to_point(self.global_position)) * 180) / PI)) + 180
+			else:
+				xangle = ((((body_position.angle_to_point(self.global_position)) * 180) / PI))
+			body_vel.x = (get_horizontal_velocity(knockbackval, -xangle + 180))
+			body_vel.y = (get_vertical_velocity(knockbackval, -angle))
+			hdecay = (get_horizontal_decay(angle))
+			vdecay = (get_vertical_decay(angle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		5:
+			body_vel.x = (get_horizontal_velocity(knockbackval, angle + 180))
+			body_vel.y = (get_vertical_velocity(knockbackval, -angle))
+			hdecay = (get_horizontal_decay(angle + 180))
+			vdecay = (get_vertical_decay(angle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		6:
+			body_vel.x = (get_horizontal_velocity(knockbackval, xangle))
+			body_vel.y = (get_vertical_velocity(knockbackval, -angle))
+			hdecay = (get_horizontal_decay(xangle))
+			vdecay = (get_vertical_decay(angle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])
+		7:
+			body_vel.x = (get_horizontal_velocity(knockbackval, -xangle + 180))
+			body_vel.y = (get_vertical_velocity(knockbackval, -angle))
+			hdecay = (get_horizontal_decay(angle))
+			vdecay = (get_vertical_decay(angle))
+			return ([body_vel.x, body_vel.y, hdecay, vdecay])

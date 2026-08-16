@@ -9,11 +9,13 @@ extends CharacterBody2D
 @onready var Ledge_Grab_F: RayCast2D = $Raycasts/LedgeGrabF
 @onready var Ledge_Grab_B: RayCast2D = $Raycasts/LedgeGrabB
 @onready var animation_player: AnimationPlayer = $Sprite/AnimationPlayer
+@onready var gun_pos: Marker2D = $GunPos
 
 # Attributes
 @export var percentage = 0
 @export var stocks = 3
 @export var weight = 100
+var freezeframes = 0
 
 # Buffers
 var l_cancel = 0
@@ -28,7 +30,17 @@ var connected: bool
 
 # Hitbox variables
 @export var hitbox: PackedScene
+@export var projectile: PackedScene
 var selfState
+
+# Temp variables
+var hit_pause = 0
+var hit_pause_dur = 0
+var temp_pos = Vector2(0,0)
+var temp_vel = Vector2(0,0)
+
+# Attacks
+var projectile_cooldown = 0
 
 # Ground variables
 var move_velocity = Vector2(0,0)
@@ -83,12 +95,29 @@ func create_hitbox(width, height, damage, angle, base_kb, kb_scaling, duration, 
 		hitbox_instance.set_parameters(width, height, damage, 180 - angle, base_kb, kb_scaling, duration, type, flip_x_points, angle_flipper, hitlag)
 	return hitbox_instance
 
+func create_projectile(dir_x, dir_y, point):
+	var projectile_instance = projectile.instantiate()
+	projectile_instance.player_list.append(self)
+	get_parent().add_child(projectile_instance)
+	gun_pos.set_position(point)
+	if direction() == 1:
+		projectile_instance.dir(dir_x, dir_y)
+		projectile_instance.set_global_position(gun_pos.get_global_position())
+	else:
+		gun_pos.position.x = -gun_pos.position.x
+		projectile_instance.dir(-dir_x, dir_y)
+		projectile_instance.set_global_position(gun_pos.get_global_position())
+	return projectile_instance
+
 func update_frames(delta) -> void:
-	frame += 1
+	frame += floor(delta * 60)
 	l_cancel -= floor(delta * 60)
 	clamp(l_cancel, 0, l_cancel)
 	cooldown -= floor(delta * 60)
 	cooldown = clamp(cooldown, 0, cooldown)
+	if freezeframes > 0:
+		freezeframes -= floor(delta * 60)
+	freezeframes = clamp(freezeframes, 0, freezeframes)
 
 func turn(direction) -> void:
 	var dir = 0
@@ -127,10 +156,30 @@ func _physics_process(delta: float) -> void:
 	frames.text = str(frame)
 	selfState = state.text
 
+func pause(delta):
+	if hit_pause < hit_pause_dur:
+		self.position = temp_pos
+		hit_pause += floor((1 * delta) * 60)
+	else:
+		if temp_vel != Vector2(0, 0):
+			self.velocity.x = temp_vel.x
+			self.velocity.y = temp_vel.y
+			temp_vel = Vector2(0, 0)
+		hit_pause_dur = 0
+		hit_pause = 0
+
+# Normal attacks
 func jab():
 	if frame == 11:
 		create_hitbox(30, 75, 8, 90, 3, 120, 3, "normal", Vector2(-35, -11), 0, 1)
 	if frame >= 24:
+		return true
+
+# Special attacks
+func neutral_special():
+	if frame == 4:
+		create_projectile(1, 0, Vector2(50, 0))
+	if frame == 14:
 		return true
 
 # Tilt attacks
