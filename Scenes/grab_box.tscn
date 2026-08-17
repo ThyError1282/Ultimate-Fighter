@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://bbp8eh4xhrbbi"]
+
+[ext_resource type="Script" uid="uid://doxdet6a01xkp" path="res://Scripts/grab_box.gd" id="1_c3knb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iwepf"]
+
+[node name="GrabBox" type="Area2D" unique_id=1134654674]
+script = ExtResource("1_c3knb")
+
+[node name="GrabBoxShape" type="CollisionShape2D" parent="." unique_id=1893848727]
+shape = SubResource("RectangleShape2D_iwepf")
+debug_color = Color(0.27058825, 0.627451, 0.25490198, 0.80784315)

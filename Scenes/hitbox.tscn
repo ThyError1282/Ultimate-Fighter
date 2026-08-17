@@ -8,6 +8,7 @@
 script = ExtResource("1_i7vqw")
 
 [node name="HitboxShape" type="CollisionShape2D" parent="." unique_id=833030978]
+unique_name_in_owner = true
 shape = SubResource("RectangleShape2D_iwepf")
 
-[connection signal="body_entered" from="." to="." method="_on_hitbox_collide"]
+[connection signal="area_entered" from="." to="." method="_on_hitbox_collide"]

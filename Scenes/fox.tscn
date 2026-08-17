@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://lxw01bnwf6tg" path="res://Scripts/state_machine_fox.gd" id="2_nw15c"]
 [ext_resource type="Texture2D" uid="uid://qli6yniqqiqg" path="res://Characters/Fox/sprites/bair_strip4.png" id="3_4qnfq"]
 [ext_resource type="PackedScene" uid="uid://dbk25nkrdm66a" path="res://Scenes/laser.tscn" id="3_u7s6j"]
+[ext_resource type="PackedScene" uid="uid://bbp8eh4xhrbbi" path="res://Scenes/grab_box.tscn" id="4_7n51y"]
 [ext_resource type="Texture2D" uid="uid://cxarm6fxdnkwd" path="res://Characters/Fox/sprites/crouch_strip4.png" id="4_nw15c"]
 [ext_resource type="Texture2D" uid="uid://c0yqxhm1v6ynq" path="res://Characters/Fox/sprites/dair_strip4.png" id="5_u7s6j"]
 [ext_resource type="Texture2D" uid="uid://beqxtludyllwd" path="res://Characters/Fox/sprites/dashstart_strip2.png" id="6_7n51y"]
@@ -2458,12 +2459,13 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iwepf"]
 size = Vector2(60, 94)
 
-[node name="Fox" type="CharacterBody2D" unique_id=1880703468]
+[node name="Fox" type="CharacterBody2D" unique_id=1880703468 groups=["Characters"]]
 collision_mask = 14
 floor_snap_length = 0.0
 script = ExtResource("1_4qnfq")
 hitbox = ExtResource("37_nw15c")
 projectile = ExtResource("3_u7s6j")
+grabbox = ExtResource("4_7n51y")
 
 [node name="StateMachine" type="Node" parent="." unique_id=1063974585]
 script = ExtResource("2_nw15c")
@@ -2525,5 +2527,31 @@ size_flags_horizontal = 3
 text = "test"
 horizontal_alignment = 1
 
+[node name="Health" type="Label" parent="." unique_id=610719154]
+offset_left = 34.0
+offset_top = -50.0
+offset_right = 74.0
+offset_bottom = -27.0
+size_flags_horizontal = 3
+text = "health"
+horizontal_alignment = 1
+
 [node name="GunPos" type="Marker2D" parent="." unique_id=361236191]
 position = Vector2(48, 0)
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=961995226]
+collision_mask = 6
+
+[node name="Hurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=1015610885]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_iwepf")
+debug_color = Color(1, 0.38431373, 0.6431373, 0.78431374)
+
+[node name="Parrybox" type="Area2D" parent="." unique_id=2087597245]
+collision_mask = 6
+
+[node name="Parrybox" type="CollisionShape2D" parent="Parrybox" unique_id=1259282281]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_iwepf")
+disabled = true
+debug_color = Color(0.90943915, 0.52671146, 0.31491292, 0.80784315)

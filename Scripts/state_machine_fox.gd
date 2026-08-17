@@ -7,6 +7,8 @@ var kby
 var hd
 var vd
 var pos
+var temp_body
+var temp_state
 
 func _ready() -> void:
 	add_state("STAND")
@@ -28,11 +30,17 @@ func _ready() -> void:
 	add_state("LEDGE_ROLL")
 	add_state("HITFREEZE")
 	add_state("HITSTUN")
+	add_state("PARRY")
+	add_state("ROLL_RIGHT")
+	add_state("ROLL_LEFT")
+	add_state("GRABBED")
+	add_state("STUNNED")
 	add_state("GROUND_ATTACK")
+	add_state("JAB")
+	add_state("JAB_1")
 	add_state("DOWN_TILT")
 	add_state("UP_TILT")
 	add_state("FORWARD_TILT")
-	add_state("JAB")
 	add_state("NEUTRAL_SPECIAL")
 	add_state("AIR_ATTACK")
 	add_state("NAIR")
@@ -100,6 +108,17 @@ func get_transition(delta):
 	if Input.is_action_just_pressed("shield_%s" % id) && aerial() && parent.cooldown == 0:
 		parent.l_cancel = 11
 		parent.cooldown = 40
+	
+	if Input.is_action_pressed("shield_%s" % id) && can_roll() == true && parent.cooldown == 0 && parent.shield_buffer == 2:
+		if Input.is_action_pressed("right_%s" % id):
+			parent.reset_frame()
+			return states.ROLL_RIGHT
+		if Input.is_action_pressed("left_%s" % id):
+			parent.reset_frame()
+			return states.ROLL_LEFT
+		else:
+			parent.reset_frame()
+			return states.PARRY
 	
 	match state:
 		states.STAND:
@@ -559,6 +578,59 @@ func get_transition(delta):
 			elif parent.frame > 60 * 5:
 				return states.AIR
 		
+		states.PARRY:
+			if parent.velocity.x > 0:
+				parent.velocity.x += -parent.TRACTION * 10
+				parent.velocity.x = clampi(parent.velocity.x, 0, parent.velocity.x)
+			elif parent.velocity.x < 0:
+				parent.velocity.x += parent.TRACTION * 10
+				parent.velocity.x = clampi(parent.velocity.x, parent.velocity.x, 0)
+			if parent.frame >= 3 && parent.frame <= 10:
+				parent.hurtbox.disabled = true
+				parent.parrybox.disabled = false
+			if parent.frame >= 11:
+				parent.hurtbox.disabled = false
+				parent.parrybox.disabled = true
+			if parent.frame == 30:
+				parent.reset_frame()
+				return states.STAND
+		
+		states.ROLL_RIGHT:
+			parent.turn(true)
+			if parent.frame == 1:
+				parent.velocity.x = 0
+			if parent.frame == 4:
+				parent.velocity.x = parent.ROLL_DISTANCE
+				parent.hurtbox.disabled = true
+			if parent.frame == 20:
+				parent.hurtbox.disabled = false
+			if parent.frame > 19:
+				parent.velocity.x = parent.velocity.x - parent.TRACTION * 5
+				parent.velocity.x = clampi(parent.velocity.x, 0, parent.velocity.x)
+				if parent.velocity.x == 0:
+					parent.cooldown = 20
+					parent.lag_frames = 10
+					parent.reset_frame()
+					return states.LANDING
+		
+		states.ROLL_LEFT:
+			parent.turn(false)
+			if parent.frame == 1:
+				parent.velocity.x = 0
+			if parent.frame == 4:
+				parent.velocity.x = -parent.ROLL_DISTANCE
+				parent.hurtbox.disabled = true
+			if parent.frame == 20:
+				parent.hurtbox.disabled = false
+			if parent.frame > 19:
+				parent.velocity.x = parent.velocity.x + parent.TRACTION * 5
+				parent.velocity.x = clampi(parent.velocity.x, parent.velocity.x, 0)
+				if parent.velocity.x == 0:
+					parent.cooldown = 20
+					parent.lag_frames = 10
+					parent.reset_frame()
+					return states.LANDING
+		
 		states.NEUTRAL_SPECIAL:
 			if aerial() == false:
 				if parent.velocity.x > 0:
@@ -720,6 +792,56 @@ func get_transition(delta):
 			parent.reset_frame()
 			return states.JAB
 		
+		states.JAB:
+			if parent.frame == 1:
+				if parent.velocity.x > 0:
+					if parent.velocity.x > parent.DASHSPEED:
+						parent.velocity.x = parent.DASHSPEED
+					parent.velocity.x += -parent.TRACTION * 20
+					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+				elif parent.velocity.x < 0:
+					if parent.velocity.x < -parent.DASHSPEED:
+						parent.velocity.x = -parent.DASHSPEED
+					parent.velocity.x += parent.TRACTION * 20
+					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			
+			parent.jab()
+			
+			if parent.jab() == true:
+				if Input.is_action_pressed("down_%s" % id):
+					parent.reset_frame()
+					return states.CROUCH
+				else:
+					parent.reset_frame()
+					return states.STAND
+			
+			if parent.jab() == false:
+				parent.reset_frame()
+				return states.JAB_1
+		
+		states.JAB_1:
+			if parent.frame == 1:
+				if parent.velocity.x > 0:
+					if parent.velocity.x > parent.DASHSPEED:
+						parent.velocity.x = parent.DASHSPEED
+					parent.velocity.x += -parent.TRACTION * 20
+					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
+				elif parent.velocity.x < 0:
+					if parent.velocity.x < -parent.DASHSPEED:
+						parent.velocity.x = -parent.DASHSPEED
+					parent.velocity.x += parent.TRACTION * 20
+					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
+			
+			parent.jab_1()
+			
+			if parent.jab_1() == true:
+				if Input.is_action_pressed("down_%s" % id):
+					parent.reset_frame()
+					return states.CROUCH
+				else:
+					parent.reset_frame()
+					return states.STAND
+		
 		states.DOWN_TILT:
 			if parent.frame == 0:
 				parent.down_tilt()
@@ -775,25 +897,30 @@ func get_transition(delta):
 					parent.reset_frame()
 					return states.STAND
 		
-		states.JAB:
-			if parent.frame == 0:
-				parent.jab()
-			
-			if parent.frame == 1:
-				if parent.velocity.x > 0:
-					parent.velocity.x += -parent.TRACTION * 2
-					parent.velocity.x = clamp(parent.velocity.x, 0, parent.velocity.x)
-				elif parent.velocity.x < 0:
-					parent.velocity.x += parent.TRACTION * 2
-					parent.velocity.x = clamp(parent.velocity.x, parent.velocity.x, 0)
-			
-			if parent.jab() == true:
-				if Input.is_action_pressed("down_%s" % id):
-					parent.reset_frame()
-					return states.CROUCH
-				else:
-					parent.reset_frame()
-					return states.STAND
+		states.GRABBED:
+			for body in get_tree().get_nodes_in_group("Character"):
+				if body.name == temp_body:
+					if body.get_node("StateMachine").state != temp_state:
+						return states.STAND
+		
+		states.STUNNED:
+			if parent.frame >= 180:
+				parent.reset_frame()
+				return states.STAND
+			else:
+				if parent.is_on_floor() == true:
+					if parent.velocity.x > 0:
+						if parent.velocity.x > parent.DASHSPEED:
+							parent.velocity.x = parent.DASHSPEED
+						parent.velocity.x = parent.velocity.x - parent.TRACTION
+						parent.velocity.x = clampi(parent.velocity.x, 0, parent.velocity.x)
+					elif parent.velocity.x < 0:
+						if parent.velocity.x < -parent.DASHSPEED:
+							parent.velocity.x = -parent.DASHSPEED
+						parent.velocity.x = parent.velocity.x + parent.TRACTION
+						parent.velocity.x = clampi(parent.velocity.x, parent.velocity.x, 0)
+				if parent.is_on_floor() == false:
+					air_movement()
 
 func enter_state(new_state, old_state) -> void:
 	match new_state:
@@ -845,12 +972,27 @@ func enter_state(new_state, old_state) -> void:
 		states.LEDGE_ROLL:
 			parent.play_animation("roll_forward")
 			parent.state.text = str("LEDGE_ROLL")
-		states.HITSTUN:
+		states.HITFREEZE:
 			parent.play_animation("hitstun")
 			parent.state.text = str("HITFREEZE")
 		states.HITSTUN:
 			parent.play_animation("hitstun")
 			parent.state.text = str("HITSTUN")
+		states.PARRY:
+			parent.play_animation("parry")
+			parent.state.text = str("PARRY")
+		states.ROLL_RIGHT:
+			parent.play_animation("tech_ground")
+			parent.state.text = str("ROLL_RIGHT")
+		states.ROLL_LEFT:
+			parent.play_animation("tech_ground")
+			parent.state.text = str("ROLL_LEFT")
+		states.GRABBED:
+			parent.play_animation("hitstun")
+			parent.state.text = str("GRABBED")
+		states.STUNNED:
+			parent.play_animation("hitstun")
+			parent.state.text = str("STUNNED")
 		states.NEUTRAL_SPECIAL:
 			parent.play_animation("neutral_special")
 			parent.state.text = str("NEUTRAL_SPECIAL")
@@ -873,6 +1015,12 @@ func enter_state(new_state, old_state) -> void:
 			parent.state.text = str("DAIR")
 		states.GROUND_ATTACK:
 			parent.state.text = str("GROUND_ATTACK")
+		states.JAB:
+			parent.play_animation("jab")
+			parent.state.text = str("JAB")
+		states.JAB_1:
+			parent.play_animation("jab_1")
+			parent.state.text = str("JAB_1")
 		states.DOWN_TILT:
 			parent.play_animation("down_tilt")
 			parent.state.text = str("DOWN_TILT")
@@ -882,9 +1030,6 @@ func enter_state(new_state, old_state) -> void:
 		states.FORWARD_TILT:
 			parent.play_animation("forward_tilt")
 			parent.state.text = str("FORWARD_TILT")
-		states.JAB:
-			parent.play_animation("jab_1")
-			parent.state.text = str("JAB")
 
 func exit_state(new_state, old_state) -> void:
 	pass
@@ -1036,6 +1181,14 @@ func ledge():
 				collider.is_grabbed = true
 				parent.last_ledge = collider
 				return true
+
+func can_roll():
+	if state_includes([states.STAND, states.MOONWALK, states.RUN, states.WALK, states.CROUCH, states.DASH]):
+		return true
+
+func grabbed(body, state):
+	temp_body = body
+	temp_state = state
 
 func hitfreeze(duration, knocback):
 	pos = parent.get_position()

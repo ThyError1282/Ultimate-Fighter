@@ -4,12 +4,15 @@ extends CharacterBody2D
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var frames: Label = $Frames
 @onready var state: Label = $State
+@onready var health: Label = $Health
 @onready var GroundL: RayCast2D = $Raycasts/GroundL
 @onready var GroundR: RayCast2D = $Raycasts/GroundR
 @onready var Ledge_Grab_F: RayCast2D = $Raycasts/LedgeGrabF
 @onready var Ledge_Grab_B: RayCast2D = $Raycasts/LedgeGrabB
 @onready var animation_player: AnimationPlayer = $Sprite/AnimationPlayer
 @onready var gun_pos: Marker2D = $GunPos
+@onready var hurtbox: CollisionShape2D = %Hurtbox
+@onready var parrybox: CollisionShape2D = %Parrybox
 
 # Attributes
 @export var percentage = 0
@@ -20,6 +23,7 @@ var freezeframes = 0
 # Buffers
 var l_cancel = 0
 var cooldown = 0
+var shield_buffer = 0
 
 # Knockback
 var hdecay
@@ -31,6 +35,7 @@ var connected: bool
 # Hitbox variables
 @export var hitbox: PackedScene
 @export var projectile: PackedScene
+@export var grabbox: PackedScene
 var selfState
 
 # Temp variables
@@ -41,6 +46,7 @@ var temp_vel = Vector2(0,0)
 
 # Attacks
 var projectile_cooldown = 0
+var grabbing = false
 
 # Ground variables
 var move_velocity = Vector2(0,0)
@@ -95,6 +101,16 @@ func create_hitbox(width, height, damage, angle, base_kb, kb_scaling, duration, 
 		hitbox_instance.set_parameters(width, height, damage, 180 - angle, base_kb, kb_scaling, duration, type, flip_x_points, angle_flipper, hitlag)
 	return hitbox_instance
 
+func create_grabbox(width, height, damage, duration, points):
+	var grabbox_instance = grabbox.instantiate()
+	self.add_child(grabbox_instance)
+	if direction() == 1:
+		grabbox_instance.set_parameters(width, height, damage, duration, points)
+	else:
+		var flip_x_points = Vector2(-points.x, points.y)
+		grabbox_instance.set_parameters(width, height, damage, duration, flip_x_points)
+	return grabbox_instance
+
 func create_projectile(dir_x, dir_y, point):
 	var projectile_instance = projectile.instantiate()
 	projectile_instance.player_list.append(self)
@@ -113,8 +129,12 @@ func update_frames(delta) -> void:
 	frame += floor(delta * 60)
 	l_cancel -= floor(delta * 60)
 	clamp(l_cancel, 0, l_cancel)
-	cooldown -= floor(delta * 60)
-	cooldown = clamp(cooldown, 0, cooldown)
+	cooldown += floor(delta * 60)
+	cooldown = clamp(cooldown, cooldown, 0)
+	if not Input.is_action_pressed("shield_%s" % id):
+		shield_buffer = 0
+	elif Input.is_action_pressed("shield_%s" % id):
+		shield_buffer += floor(delta * 60)
 	if freezeframes > 0:
 		freezeframes -= floor(delta * 60)
 	freezeframes = clamp(freezeframes, 0, freezeframes)
@@ -154,7 +174,15 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	frames.text = str(frame)
+	health.text = str(100 - percentage)
 	selfState = state.text
+	death_check()
+
+func death_check():
+	if percentage >= 100:
+		queue_free()
+	else:
+		return
 
 func pause(delta):
 	if hit_pause < hit_pause_dur:
@@ -168,13 +196,6 @@ func pause(delta):
 		hit_pause_dur = 0
 		hit_pause = 0
 
-# Normal attacks
-func jab():
-	if frame == 11:
-		create_hitbox(30, 75, 8, 90, 3, 120, 3, "normal", Vector2(-35, -11), 0, 1)
-	if frame >= 24:
-		return true
-
 # Special attacks
 func neutral_special():
 	if frame == 4:
@@ -183,6 +204,24 @@ func neutral_special():
 		return true
 
 # Tilt attacks
+func jab():
+	if frame == 2:
+		create_grabbox(30, 40, 0, 3, Vector2(64, 0))
+	if frame == 5:
+		if grabbing == true:
+			return false
+	if frame >= 20:
+		return true
+
+func jab_1():
+	if frame == 1:
+		grabbing = false
+		create_grabbox(30, 40, 0, 13, Vector2(64, 0))
+	if frame == 12:
+		create_hitbox(40, 20, 8, 90, 8800, 0, 9, "normal", Vector2(48, 8), 0, 0)
+	if frame >= 32:
+		return true
+
 func down_tilt():
 	if frame == 5:
 		create_hitbox(40, 20, 8, 90, 3, 120, 3, "normal", Vector2(64, 32), 0, 1)

@@ -24,6 +24,7 @@ var parent = get_parent()
 var knockbackval
 var framez = 0.0
 var player_list = []
+var parry = false
 
 func set_parameters(w, h, d, a, b_kb, kb_s, dur, t, p, af, hit, parent = get_parent()) -> void:
 	self.position = Vector2(0,0)
@@ -44,25 +45,33 @@ func set_parameters(w, h, d, a, b_kb, kb_s, dur, t, p, af, hit, parent = get_par
 	set_physics_process(true)
 
 func _on_hitbox_collide(body):
-	if !(body in player_list):
-		player_list.append(body)
-		var charstate
-		charstate = body.get_node("StateMachine")
-		weight = body.weight
-		body.percentage += damage
-		knockbackval = knockback(body.percentage, damage, weight, kb_scaling, base_kb, 1)
-		s_angle(body)
-		charstate.state = charstate.states.HITFREEZE
-		charstate.hitfreeze(hitlag(damage, hitlag_modifier), angle_flip_2(Vector2(body.velocity.x, body.velocity.y), body.global_position))
-		body.knockback = knockbackval
-		body.hitstun = get_hitstun(knockbackval / 0.3)
-		get_parent().connected = true
-		body.reset_frame()
-		
-		Globals.hitstun(hitlag(damage, hitlag_modifier), hitlag(damage, hitlag_modifier) / 60)
-		get_parent().hit_pause_dur = duration - framez
-		get_parent().temp_pos = get_parent().position
-		get_parent().temp_vel = get_parent().velocity
+	if !(body.get_parent() in player_list):
+		if body.name == "Parrybox":
+			set_collision_mask_value(1, false)
+			parry = true
+			if get_parent().is_on_floor() == false:
+				var selfstate = get_parent().get_node("StateMachine")
+				selfstate.state = selfstate.states.STUNNED
+		else:
+			body = body.get_parent()
+			player_list.append(body)
+			var charstate
+			charstate = body.get_node("StateMachine")
+			weight = body.weight
+			body.percentage += damage
+			knockbackval = knockback(body.percentage, damage, weight, kb_scaling, base_kb, 1)
+			s_angle(body)
+			charstate.state = charstate.states.HITFREEZE
+			charstate.hitfreeze(hitlag(damage, hitlag_modifier), angle_flip_2(Vector2(body.velocity.x, body.velocity.y), body.global_position))
+			body.knockback = knockbackval
+			body.hitstun = get_hitstun(knockbackval / 0.3)
+			get_parent().connected = true
+			body.reset_frame()
+			
+			Globals.hitstun(hitlag(damage, hitlag_modifier), hitlag(damage, hitlag_modifier) / 60)
+			get_parent().hit_pause_dur = duration - framez
+			get_parent().temp_pos = get_parent().position
+			get_parent().temp_vel = get_parent().velocity
 
 func update_extents() -> void:
 	hitbox.shape.extents = Vector2(width, height)
@@ -76,8 +85,14 @@ func _physics_process(delta: float) -> void:
 	if framez < duration:
 		framez += 1
 	elif framez == duration:
-		queue_free()
-		return
+		if parry == true:
+			var selfstate = get_parent().get_node("StateMachine")
+			selfstate.state = selfstate.states.STUNNED
+			queue_free()
+			return
+		else:
+			queue_free()
+			return
 	if get_parent().selfState != parentstate:
 		Engine.time_scale = 1
 		queue_free()
