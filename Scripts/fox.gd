@@ -176,11 +176,25 @@ func _physics_process(delta: float) -> void:
 	frames.text = str(frame)
 	health.text = str(100 - percentage)
 	selfState = state.text
+	health_remove()
 	death_check()
 
 func death_check():
+	if id == 1:
+		if Globals.player_1["stocks"] <= 0:
+			queue_free()
+	if id == 2:
+		if Globals.player_2["stocks"] <= 0:
+			queue_free()
+
+func health_remove():
 	if percentage >= 100:
-		queue_free()
+		if id == 1:
+			Globals.player_1["stocks"] -= 1
+			percentage = 0
+		elif id == 2:
+			Globals.player_2["stocks"] -= 1
+			percentage = 0
 	else:
 		return
 

@@ -1,0 +1,154 @@
+[gd_scene format=3 uid="uid://dgtoq38qlstqa"]
+
+[ext_resource type="Script" uid="uid://dhvl658as88lj" path="res://Scripts/play.gd" id="1_klylv"]
+[ext_resource type="Script" uid="uid://dxiwlfk8oc241" path="res://Scripts/title_screen.gd" id="1_twnyg"]
+[ext_resource type="Script" uid="uid://dm528ev4t8xy5" path="res://Scripts/options.gd" id="2_4gxqj"]
+[ext_resource type="Script" uid="uid://dj0l0v2qywcwo" path="res://Scripts/quit.gd" id="2_p3fck"]
+
+[sub_resource type="Gradient" id="Gradient_twnyg"]
+offsets = PackedFloat32Array(0, 0.56626505, 1)
+colors = PackedColorArray(0.2631852, 0.10014274, 0.42336106, 1, 0.59691936, 0.48073852, 0.27705896, 1, 0.60784316, 1, 1, 0.91764706)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_iwepf"]
+gradient = SubResource("Gradient_twnyg")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4gxqj"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_62dcu"]
+size = Vector2(500, 81)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p3fck"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_klylv"]
+size = Vector2(501, 76)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_twnyg"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p3fck"]
+size = Vector2(501, 79)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iwepf"]
+
+[node name="TitleScreen" type="Control" unique_id=1433909882]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_twnyg")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1236911640]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_iwepf")
+
+[node name="Label" type="Label" parent="." unique_id=491081060]
+layout_mode = 0
+offset_left = 17.0
+offset_top = 17.0
+offset_right = 481.0
+offset_bottom = 68.0
+theme_override_font_sizes/font_size = 150
+text = "Ultimate Fighter"
+
+[node name="Buttons" type="HBoxContainer" parent="." unique_id=313124283]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -138.5
+offset_right = 1097.0
+offset_bottom = 138.5
+grow_vertical = 2
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Buttons" unique_id=90852986]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Play" type="Button" parent="Buttons/VBoxContainer" unique_id=1921407406]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 70
+theme_override_styles/focus = SubResource("StyleBoxFlat_4gxqj")
+text = "PLAY"
+script = ExtResource("1_klylv")
+path = "res://Scenes/character_select_screen.tscn"
+
+[node name="ButtonArea" type="Area2D" parent="Buttons/VBoxContainer/Play" unique_id=1089498809]
+collision_layer = 65536
+collision_mask = 524288
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Buttons/VBoxContainer/Play/ButtonArea" unique_id=1835106655]
+position = Vector2(250, 41)
+shape = SubResource("RectangleShape2D_62dcu")
+
+[node name="Options" type="Button" parent="Buttons/VBoxContainer" unique_id=883421558]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 70
+theme_override_styles/focus = SubResource("StyleBoxFlat_p3fck")
+text = "OPTIONS"
+script = ExtResource("2_4gxqj")
+
+[node name="ButtonArea" type="Area2D" parent="Buttons/VBoxContainer/Options" unique_id=5626754]
+collision_layer = 65536
+collision_mask = 524288
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Buttons/VBoxContainer/Options/ButtonArea" unique_id=96590872]
+position = Vector2(248.5, 38.5)
+shape = SubResource("RectangleShape2D_klylv")
+
+[node name="Quit" type="Button" parent="Buttons/VBoxContainer" unique_id=134595478]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 70
+theme_override_styles/focus = SubResource("StyleBoxFlat_twnyg")
+text = "QUIT"
+script = ExtResource("2_p3fck")
+
+[node name="ButtonArea" type="Area2D" parent="Buttons/VBoxContainer/Quit" unique_id=317092539]
+collision_layer = 65536
+collision_mask = 524288
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Buttons/VBoxContainer/Quit/ButtonArea" unique_id=1324491053]
+position = Vector2(248.5, 37)
+shape = SubResource("RectangleShape2D_p3fck")
+
+[node name="Pointer" type="Area2D" parent="." unique_id=1789519247]
+position = Vector2(548, 657)
+collision_layer = 524288
+collision_mask = 65536
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pointer" unique_id=1262730414]
+shape = SubResource("RectangleShape2D_iwepf")
+
+[connection signal="focus_entered" from="Buttons/VBoxContainer/Play" to="Buttons/VBoxContainer/Play" method="_on_SinglePlayerButton_focus_entered"]
+[connection signal="focus_exited" from="Buttons/VBoxContainer/Play" to="Buttons/VBoxContainer/Play" method="_on_SinglePlayerButton_focus_exited"]
+[connection signal="pressed" from="Buttons/VBoxContainer/Play" to="Buttons/VBoxContainer/Play" method="_on_pressed"]
+[connection signal="area_entered" from="Buttons/VBoxContainer/Play/ButtonArea" to="Buttons/VBoxContainer/Play" method="_on_area_2d_area_entered"]
+[connection signal="area_exited" from="Buttons/VBoxContainer/Play/ButtonArea" to="Buttons/VBoxContainer/Play" method="_on_area_2d_area_exited"]
+[connection signal="focus_entered" from="Buttons/VBoxContainer/Options" to="Buttons/VBoxContainer/Options" method="_on_OptionsButton_focus_entered"]
+[connection signal="focus_exited" from="Buttons/VBoxContainer/Options" to="Buttons/VBoxContainer/Options" method="_on_OptionsButton_focus_exited"]
+[connection signal="pressed" from="Buttons/VBoxContainer/Options" to="Buttons/VBoxContainer/Options" method="_on_pressed"]
+[connection signal="area_entered" from="Buttons/VBoxContainer/Options/ButtonArea" to="Buttons/VBoxContainer/Options" method="_on_area_2d_area_entered"]
+[connection signal="area_exited" from="Buttons/VBoxContainer/Options/ButtonArea" to="Buttons/VBoxContainer/Options" method="_on_area_2d_area_exited"]
+[connection signal="focus_entered" from="Buttons/VBoxContainer/Quit" to="Buttons/VBoxContainer/Quit" method="_on_QuitButton_focus_entered"]
+[connection signal="focus_exited" from="Buttons/VBoxContainer/Quit" to="Buttons/VBoxContainer/Quit" method="_on_QuitButton_focus_exited"]
+[connection signal="pressed" from="Buttons/VBoxContainer/Quit" to="Buttons/VBoxContainer/Quit" method="_on_pressed"]
+[connection signal="area_entered" from="Buttons/VBoxContainer/Quit/ButtonArea" to="Buttons/VBoxContainer/Quit" method="_on_area_2d_area_entered"]
+[connection signal="area_exited" from="Buttons/VBoxContainer/Quit/ButtonArea" to="Buttons/VBoxContainer/Quit" method="_on_area_2d_area_exited"]

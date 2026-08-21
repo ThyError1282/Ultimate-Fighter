@@ -10,6 +10,7 @@ collision_layer = 8
 script = ExtResource("1_5wfx0")
 
 [node name="Label" type="Label" parent="." unique_id=415392588]
+visible = false
 offset_left = -20.0
 offset_top = -12.0
 offset_right = 20.0

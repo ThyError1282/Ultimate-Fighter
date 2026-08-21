@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://dpuxf36s2yncp"]
+
+[ext_resource type="Script" uid="uid://hp1nh6ovwpsq" path="res://Scripts/token.gd" id="1_w5to0"]
+[ext_resource type="Texture2D" uid="uid://bttpyr01x0s7o" path="res://Characters/Fox/icon.png" id="2_ckhc0"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_iwepf"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_iwepf"]
+radius = 50.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_udwty"]
+radius = 50.0
+
+[node name="Token" type="RigidBody2D" unique_id=197803437]
+collision_layer = 262144
+collision_mask = 262144
+mass = 1000.0
+physics_material_override = SubResource("PhysicsMaterial_iwepf")
+gravity_scale = 0.01
+can_sleep = false
+angular_damp = 0.01
+script = ExtResource("1_w5to0")
+metadata/_edit_group_ = true
+
+[node name="Icon" type="Sprite2D" parent="." unique_id=2048308526]
+scale = Vector2(7, 7)
+texture = ExtResource("2_ckhc0")
+
+[node name="TokenArea" type="Area2D" parent="." unique_id=607555522]
+collision_layer = 262144
+collision_mask = 917504
+gravity_space_override = 1
+gravity_point = true
+gravity_point_center = Vector2(0, 0)
+gravity_direction = Vector2(0, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TokenArea" unique_id=549748966]
+shape = SubResource("CircleShape2D_iwepf")
+
+[node name="Label" type="Label" parent="." unique_id=852872472]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -8.0
+offset_right = 20.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+text = "P1"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="TokenCollision" type="CollisionShape2D" parent="." unique_id=141275949]
+shape = SubResource("CircleShape2D_udwty")

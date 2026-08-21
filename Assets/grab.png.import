@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2rcdwhi7s5lo"
-path="res://.godot/imported/Smashville.jpg-2e2c1f6936cb25dc134b4f5cf7fe07e3.ctex"
+uid="uid://c6a6qrmh06ivb"
+path="res://.godot/imported/grab.png-587ea6afe7978bd92e236abeb4db702e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Stages/Smashville/Smashville.jpg"
-dest_files=["res://.godot/imported/Smashville.jpg-2e2c1f6936cb25dc134b4f5cf7fe07e3.ctex"]
+source_file="res://Assets/grab.png"
+dest_files=["res://.godot/imported/grab.png-587ea6afe7978bd92e236abeb4db702e.ctex"]
 
 [params]
 

@@ -23,6 +23,8 @@ func _ready() -> void:
 	add_state("CROUCH")
 	add_state("AIR")
 	add_state("LANDING")
+	add_state("AIR_DODGE")
+	add_state("FREE_FALL")
 	add_state("LEDGE_CATCH")
 	add_state("LEDGE_HOLD")
 	add_state("LEDGE_CLIMB")
@@ -340,6 +342,9 @@ func get_transition(delta):
 		
 		states.AIR:
 			air_movement()
+			if Input.is_action_just_pressed("shield_%s" % id):
+				parent.reset_frame()
+				return states.AIR_DODGE
 			if Input.is_action_just_pressed("jump_%s" % id) and parent.air_jump > 0:
 				parent.fastfall = false
 				parent.velocity.x = 0
@@ -379,6 +384,74 @@ func get_transition(delta):
 					parent.reset_frame()
 					return states.STAND
 				parent.lag_frames = 0
+		
+		states.AIR_DODGE:
+			if parent.frame == 1:
+				parent.velocity.x = 0
+				parent.velocity.y = 0
+				
+				var deadzone = (Input.get_action_strength("right_%s" % id) - Input.get_action_strength("left_%s" % id) in range(-0.2, 1.2) and Input.get_action_strength("up_%s" % id) - Input.get_action_strength("down_%s" % id) in range(-0.2, 1.2))
+				var direction = Vector2(Input.get_action_strength("right_%s" % id) - Input.get_action_strength("left_%s" % id), Input.get_action_strength("down_%s" % id) - Input.get_action_strength("up_%s" % id))
+				if deadzone:
+					direction = Vector2(0, 0)
+				parent.velocity = parent.AIR_DODGE_SPEED * direction.normalized()
+				if abs(parent.velocity.x) == abs(parent.velocity.y):
+					parent.velocity.x = parent.velocity.x / 1.15
+					parent.velocity.y = parent.velocity.y / 1.15
+				parent.lag_frames = 3
+			
+			if parent.frame >= 4 and parent.frame <= 10:
+				parent.hurtbox.disabled == true
+				if parent.frame == 5:
+					pass
+				parent.velocity.x = parent.velocity.x / 1.15
+				parent.velocity.y = parent.velocity.y / 1.15
+			if parent.frame >= 10 and parent.frame < 20:
+				parent.velocity.x = 0
+				parent.velocity.y = 0
+			elif parent.frame == 20:
+				parent.lag_frames = 8
+				parent.frame = 0
+				parent.reset_frame()
+				return states.FREE_FALL
+			if parent.is_on_floor():
+				parent.frame = 0
+				if parent.velocity.y > 0:
+					parent.velocity.y = 0
+				parent.fastfall = false
+				parent.reset_frame()
+				return states.LANDING
+		
+		states.FREE_FALL:
+			if parent.velocity.y < parent.MAXFALLSPEED:
+				parent.velocity.y += parent.FALLSPEED
+			
+			if Input.is_action_just_pressed("down_%s" % id) and parent.velocity.y > 0 and not parent.fastfall:
+				parent.velocity.y = parent.MAXFALLSPEED
+				parent.fastfall = true
+			
+			if abs(parent.velocity.x) >= abs(parent.MAXAIRSPEED):
+				if parent.velocity.x > 0:
+					if Input.is_action_pressed("left_%s" % id):
+						parent.velocity.x += -parent.AIR_ACCEL
+					elif Input.is_action_pressed("right_%s" % id):
+						parent.velocity.x = parent.velocity.x
+				if parent.velocity.x < 0:
+					if Input.is_action_pressed("left_%s" % id):
+						parent.velocity.x = parent.velocity.x
+					elif Input.is_action_pressed("right_%s" % id):
+						parent.velocity.x += parent.AIR_ACCEL
+			
+			elif abs(parent.velocity.x) < abs(parent.MAXAIRSPEED):
+				if Input.is_action_pressed("left_%s" % id):
+					parent.velocity.x += -parent.AIR_ACCEL
+				if Input.is_action_pressed("right_%s" % id):
+					parent.velocity.x += parent.AIR_ACCEL
+			if not Input.is_action_pressed("left_%s" % id) and not Input.is_action_pressed("right_%s" % id):
+				if parent.velocity.x < 0:
+					parent.velocity.x += parent.AIR_ACCEL / 2
+				elif parent.velocity.x < 0:
+					parent.velocity.x += -parent.AIR_ACCEL / 2
 		
 		states.LEDGE_CATCH:
 			if parent.frame > 7:
@@ -957,6 +1030,12 @@ func enter_state(new_state, old_state) -> void:
 		states.LANDING:
 			parent.play_animation("landing")
 			parent.state.text = str("LANDING")
+		states.AIR_DODGE:
+			parent.play_animation("air_dodge")
+			parent.state.text = str("AIR_DODGE")
+		states.FREE_FALL:
+			parent.play_animation("free_fall")
+			parent.state.text = str("FREE_FALL")
 		states.LEDGE_CATCH:
 			parent.play_animation("ledge_catch")
 			parent.state.text = str("LEDGE_CATCH")
@@ -1090,7 +1169,7 @@ func air_movement():
 			parent.velocity.x += -parent.AIR_ACCEL / 5
 
 func landing():
-	if state_includes([states.AIR, states.NAIR, states.UAIR, states.BAIR, states.DAIR, states.FAIR]):
+	if state_includes([states.AIR, states.NAIR, states.UAIR, states.BAIR, states.DAIR, states.FAIR, states.FREE_FALL]):
 		if parent.GroundL.is_colliding() and parent.velocity.y >= 0:
 			var collider = parent.GroundL.get_collider()
 			parent.frame = 0

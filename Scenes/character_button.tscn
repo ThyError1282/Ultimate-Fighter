@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://2s878l41lxuw"]
+
+[ext_resource type="Texture2D" uid="uid://bhf6xkwaqmupb" path="res://Characters/Fox/hud.png" id="1_3a0vx"]
+[ext_resource type="Script" uid="uid://lc0lpxyku1t8" path="res://Scripts/character_button.gd" id="2_on7ra"]
+[ext_resource type="Texture2D" uid="uid://vhu1ymuyj5im" path="res://Characters/Fox/hurt.png" id="3_48u3o"]
+
+[sub_resource type="Gradient" id="Gradient_on7ra"]
+offsets = PackedFloat32Array(0, 0.70481926, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.5019608, 0.5019608, 1, 1, 1, 1, 1, 0.2509804)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_iwepf"]
+gradient = SubResource("Gradient_on7ra")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iwepf"]
+size = Vector2(224, 128)
+
+[node name="CharacterButton" type="TextureButton" unique_id=2019586276 groups=["CharSelect"]]
+custom_minimum_size = Vector2(224, 128)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1696.0
+offset_bottom = -952.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.3)
+texture_normal = ExtResource("1_3a0vx")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_on7ra")
+normal_texture = ExtResource("1_3a0vx")
+pressed_texture = ExtResource("3_48u3o")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=248522176]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_iwepf")
+
+[node name="Label" type="Label" parent="." unique_id=815374352]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -74.0
+offset_bottom = 36.0
+grow_horizontal = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 12
+theme_override_constants/shadow_outline_size = 5
+theme_override_font_sizes/font_size = 35
+text = "FOX"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CharacterArea" type="Area2D" parent="." unique_id=1525424018]
+position = Vector2(112, 64)
+collision_layer = 131072
+collision_mask = 262144
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterArea" unique_id=1916301570]
+shape = SubResource("RectangleShape2D_iwepf")
+
+[node name="Point" type="Marker2D" parent="." unique_id=868046993]
+position = Vector2(112, 64)
+
+[connection signal="button_down" from="." to="." method="on_character_button_down"]
+[connection signal="button_up" from="." to="." method="on_character_button_up"]
+[connection signal="area_entered" from="CharacterArea" to="." method="on_area_2d_area_entered"]
+[connection signal="area_exited" from="CharacterArea" to="." method="on_area_2d_area_exited"]

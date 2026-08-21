@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://ddahmu3a20nev"]
+
+[ext_resource type="Script" uid="uid://cek57fcyl45dr" path="res://Scripts/character_preview.gd" id="1_jorg7"]
+[ext_resource type="Texture2D" uid="uid://bg1pcklk637pb" path="res://Characters/Fox/portrait.png" id="2_x3gjj"]
+
+[node name="CharacterPreview" type="Control" unique_id=718823483]
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 3
+script = ExtResource("1_jorg7")
+FOX = ExtResource("2_x3gjj")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1208330235]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0, 0.086, 0.243)
+
+[node name="Full" type="TextureRect" parent="." unique_id=1589218499]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Hover" type="TextureRect" parent="." unique_id=285096384]
+self_modulate = Color(1, 1, 1, 0.49803922)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BottomText" type="Control" parent="." unique_id=1010257691]
+layout_mode = 1
+anchor_top = 0.75
+anchor_right = 1.0
+anchor_bottom = 1.172
+offset_top = -84.0
+offset_bottom = -84.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ColorRect" type="ColorRect" parent="BottomText" unique_id=1066657947]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0, 0, 1)
+
+[node name="CharacterName" type="Label" parent="BottomText" unique_id=496813412]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -50.0
+offset_right = 100.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 150

@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://bpm42c53n4xv8"]
+
+[ext_resource type="Texture2D" uid="uid://c6a6qrmh06ivb" path="res://Assets/grab.png" id="1_bupjd"]
+[ext_resource type="Script" uid="uid://b0vmy1wpp042e" path="res://Scripts/hands.gd" id="1_pciih"]
+[ext_resource type="Texture2D" uid="uid://brg8bsudsqy2c" path="res://Assets/cursor.png" id="2_pciih"]
+[ext_resource type="Texture2D" uid="uid://ct4jy0the5ckx" path="res://Assets/pointer.png" id="3_lu2tt"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_iwepf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_bupjd")
+}],
+"loop": 1,
+"name": &"Grab",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_pciih")
+}],
+"loop": 1,
+"name": &"Open",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_lu2tt")
+}],
+"loop": 1,
+"name": &"Point",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_udwty"]
+radius = 44.011364
+
+[node name="Hand" type="Node2D" unique_id=934221543]
+z_index = 2
+script = ExtResource("1_pciih")
+
+[node name="HandSprite" type="AnimatedSprite2D" parent="." unique_id=173849227]
+unique_name_in_owner = true
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_iwepf")
+animation = &"Open"
+
+[node name="Player" type="Label" parent="HandSprite" unique_id=1603539147]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -77.0
+offset_top = -73.0
+offset_right = -37.0
+offset_bottom = -47.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 25
+text = "P1"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="HandArea" type="Area2D" parent="." unique_id=1028857443]
+collision_layer = 524288
+collision_mask = 458752
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HandArea" unique_id=1161482082]
+shape = SubResource("CircleShape2D_udwty")
+
+[node name="Marker2D" type="Marker2D" parent="." unique_id=585582901]
+position = Vector2(-15, -26)
+
+[connection signal="area_entered" from="HandArea" to="." method="_on_hand_area_entered"]
+[connection signal="area_exited" from="HandArea" to="." method="_on_hand_area_exited"]
